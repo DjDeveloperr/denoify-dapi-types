@@ -1,12 +1,36 @@
 name: denoify
-on: [push]
+
+on:
+  push:
+    branches:
+      - master
+      - main
+      - stable
+
 jobs:
-  check-bats-version:
+  denoify-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-      - run: git clone https://github.com/DjDeveloperr/denoify-dapi-types.git .
-      - run: git clone https://github.com/discordjs/discord-api-types.git repo
-      - run: node main.js
-      - run: deno run deno.ts
+      - name: Setup Repo
+        uses: actions/checkout@v2
+      - name: Setup Deno
+        uses: denolib/setup-deno@v2.3.0
+      - name: Setup Node
+        uses: actions/setup-node@v1
+      - name: Clone Denoify repo
+        run: git clone https://github.com/DjDeveloperr/denoify-dapi-types.git denoify
+      - name: Clone types repo
+        run: cd denoify && git clone https://github.com/discordjs/discord-api-types.git repo
+      - name: Convert types
+        run: cd denoify && node main.js
+      - name: Test types with Deno
+        run: cd denoify && deno run deno.ts
+      - name: Commit Changes
+        run: cd denoify/deno && git config --global user.email "action@github.com" && git config --global user.name "GitHub Action" && git init && git checkout -b deno && git remote add origin ${{ github.repository }} && git add --all && git commit -m "Deploy Deno version"
+      - name: Deploy Deno version
+        uses: ad-m/github-push-action@master
+        with: 
+          directory: denoify/deno
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          force: true
+          branch: deno
