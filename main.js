@@ -65,6 +65,7 @@ function denoifyImports(dir) {
         });
 
         cont = cont.replace(/from '.\/'/g, "from './index.ts'");
+        cont = cont.replace(/from '..\/v8'/g, "from '../v8/index.ts'");
 
         let np = file;
         if (np.startsWith("repo")) np = 'deno' + np.slice(4);
