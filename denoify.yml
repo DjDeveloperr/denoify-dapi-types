@@ -1,0 +1,12 @@
+name: denoify
+on: [push]
+jobs:
+  check-bats-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+      - run: git clone https://github.com/DjDeveloperr/denoify-dapi-types.git .
+      - run: git clone https://github.com/discordjs/discord-api-types.git repo
+      - run: node main.js
+      - run: deno run deno.ts
